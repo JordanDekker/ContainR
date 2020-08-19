@@ -1,0 +1,285 @@
+.before-tooltip {
+  display: inline;
+  vertical-align: middle;
+}
+
+.image_error {
+  color: red;
+  font-weight: bold;
+}
+
+.blast_success {
+  color: blue;
+  font-weight: bold;
+}
+
+#min_A_value {
+  width: 4em;
+}
+
+#min_T_value {
+  width: 4em;
+}
+
+#min_G_value {
+  width: 4em;
+}
+
+#min_C_value {
+  width: 4em;
+}
+
+#max_A_value {
+  width: 4em;
+}
+
+#max_T_value {
+  width: 4em;
+}
+
+#max_G_value {
+  width: 4em;
+}
+
+#max_C_value {
+  width: 4em;
+}
+
+/* Box Plot Popup */
+
+#boxplotbutton {
+  width: 100%;
+  padding-left: 0px;
+  padding-right: 0px;
+  /* border-left: 7px;
+  border-right: 7px; */
+}
+
+#boxplotarrow {
+  background: #555;
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  top: 50%;
+  left: -5px;
+  transform: rotate(45deg);
+}
+
+table#statistics td {
+  padding-right: 10px;
+}
+
+/* Popup container */
+.popup {
+  width: 150px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* The actual popup (appears on top) */
+
+.popup .popuptext {
+    visibility: hidden;
+    width: 500px;
+    height:135px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 0;
+    position: absolute;
+    z-index: 1;
+    top: -57px;
+    bottom: -146.875%;
+    margin-left: 161px;
+    margin-top: 0px;
+  }
+
+/* Toggle this class when clicking on the popup container (hide and show the popup) */
+
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
+}
+
+/* Alert Box */
+.tsv-alert {
+  padding: 20px 20px 10px 20px;
+  margin-bottom: 20px;
+  background-color: #368acf;
+  color: white;
+}
+
+.tsv-closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.tsv-closebtn:hover {
+  color: black;
+}
+
+/* Nav buttons */
+/* From https://codepen.io/slimsmearlapp/pen/HJgFG */
+button.nav-button{
+  padding-top: 4px;
+  padding-right: 30px;
+  height: 40px;
+  background: linear-gradient(to bottom, #4eb5e5 0%,#389ed5 100%); /* W3C */
+  border: none;
+  border-radius: 5px;
+  position: relative;
+  border-bottom: 4px solid #2b8bc6;
+  color: #fbfbfb;
+  font-weight: 600;
+  font-family: 'Open Sans', sans-serif;
+  text-shadow: 1px 1px 1px rgba(0,0,0,.4);
+  font-size: 15px;
+  text-align: left;
+  text-indent: 5px;
+  box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2);
+  cursor: pointer;
+
+/* Just for presentation */  
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+button.nav-button:active {
+  box-shadow: 0px 2px 0px 0px rgba(0,0,0,.2);
+  top: 1px;
+}
+
+button.nav-button:after {
+  content: "";
+  width: 0;
+  height: 0;
+  display: block;
+  border-top: 20px solid #187dbc;
+  border-bottom: 20px solid #187dbc;
+  border-left: 16px solid transparent;
+  border-right: 20px solid #187dbc;
+  position: absolute;
+  opacity: 0.6; 
+  right: 0;
+  top: 0;
+  border-radius: 0 5px 5px 0;  
+}
+
+/* Button pointing left */
+
+button.nav-button-back {
+  text-align: right;
+  padding-left: 30px;
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+button.nav-button-back:after {
+  content: "";
+  width: 0;
+  height: 0;
+  display: block;
+  border-top: 20px solid #187dbc;
+  border-bottom: 20px solid #187dbc;
+  border-right: 16px solid transparent;
+  border-left: 20px solid #187dbc;
+  position: absolute;
+  opacity: 0.6; 
+  left: 0;
+  top: 0;
+  border-radius: 5px 0 0 5px;    
+}
+
+/* blastBar */
+#blastProgressBar {
+  float: left;
+  width: 50%;
+  margin: 8px auto;
+  height: 22px;
+  background-color: #0A5F44;
+}
+
+#blastProgressBar div {
+  height: 100%;
+  text-align: right;
+  /* padding: 0 10px; */
+  line-height: 22px; /* same as #progressBar height if we want text middle aligned */
+  width: 0;
+  background-color: #CBEA00;
+  box-sizing: border-box;
+}
+
+/* Results page graphs */
+.results-row .canvasjs-chart-toolbar {
+  margin-top: 31px;
+}
+
+.results-column {
+  float: left;
+  width: 50%;
+  padding: 50px;
+  font-size: 14px;
+}
+
+.results-row {
+  height: 300px;
+  margin-bottom: 30px;
+}
+
+/* Add animation (fade in the popup) */
+
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#breadcrumb li {
+  float: left;
+  display: block;
+  position: relative;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 5px 0 5px;
+  text-align: center;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  font-size: 150%;
+}
+
+.preprocessingBlock {
+  border-radius: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  background-color: #6ce;
+}
+
+.preprocessingBlock:nth-child(odd) {
+  background: #6ec;
+}
+
+.container {
+  overflow: hidden;
+}

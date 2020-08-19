@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Sequences.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
+<script src="{{ url_for('static', filename='scripts/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/overlay.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/sequences.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/bacterial.js') }}"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/sha1.js"></script>
+{% endblock %}
+
+{% block app_content %}
+<h2>Results</h2>
+<div>
+    <p>On this page you can see the BLAST results in a sunburst<br>
+</div>
+<hr>
+
+<div id="upload">
+    <p id="upload_error" class="image_error"></p>
+    <p id="upload_succes" class="blast_success"></p>
+    <img id="upload_load" src="{{ url_for('static', filename='images/loading2.gif') }}" alt="Loading..."
+        style="width:100px;height:auto;border:0">
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<hr>
+
+<div id="Sunburst" style="height:200px">
+    <h4 class="before-tooltip">Sunburst Graph</h4>
+    <i class="far fa-question-circle tooltip-icon" title="Before creating a sunburst, you need to either run a Blast on this page or load a BLAST results file from an earlier session." aria-hidden="true"></i>
+    <br>
+
+    If you want extra data of a specific bacterium, click on the wanted bacterium to get graphs about the quality of the sequences, like sequence length, identity and bit score.
+    <br>
+
+    <p id="identity_error" class="image_error"></p>
+    <p id="bacterial_error" class="image_error"></p>
+
+    <div style="height:100px">
+        <ul id="breadcrumb"></ul>
+    </div>
+
+    <div id="main" style="text-align:center">
+        <div id="chart">
+            <div id="explanation" style="visibility:hidden">
+                <span id="percentage"></span><br>
+                of sequences are part of this section
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="results-row">
+    <div class="results-column" id="selection-options"></div>
+    <div class="results-column" id="results-links"></div>
+</div>
+
+<div class="results-row">
+    <div class="results-column"><div id="Length"></div></div>
+    <div class="results-column"><div id="identity"></div></div>
+</div>
+
+<div class="results-row">
+    <div class="results-column"><div id="Bit_score"></div></div>
+</div>
+
+<div>
+    <br>
+    <button id="download_tsv" onclick="download_tsv()">Save session</button>
+    <br>
+    <p id="download_tsv_error" class="image_error"></p>
+    <br>
+</div>
+
+<button onclick="redirectPage(this)" data-url="{{ url_for('web.blastPage')}}" class="nav-button nav-button-back">Go back to BLAST</button>
+
+<script>
+    $(function() {
+        make_sunburst_image();
+    });
+</script>
+
+{% endblock %}

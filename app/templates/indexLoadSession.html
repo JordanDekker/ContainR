@@ -1,0 +1,44 @@
+{% extends "index.html" %}
+
+{% block extended_app_content %}
+<div class="col-sm-9" id="import">
+    <div>
+        <h4>Input session TSV file</h4>
+        <!--form object is from app/web/routes.py > preprocessing()-->
+        {% if form %}
+        {{ wtf.quick_form(form) }}
+        {% endif %}
+        <img id="upload_load" src="{{ url_for('static', filename='images/loading2.gif') }}" alt="Loading..."
+            style="width:100px;height:auto;border:0">
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info" role="alert">{{ message }}</div>
+                {% if message == 'Files were successfully uploaded!' %}
+                    <button onclick="redirectPage(this)" data-url="{{ url_for('web.preprocessing')}}" class="nav-button">Return to preprocessing</button>
+                    <button onclick="redirectPage(this)" data-url="{{ url_for('web.blastPage')}}" class="nav-button">Go to BLAST</button>
+                    {% if didBlast == 'True' %}
+                    <button onclick="redirectPage(this)" data-url="{{ url_for('web.results')}}" class="nav-button">Go to results</button>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $("#upload_load").hide();
+    $("#submit").click(function () {
+        if ($("#tsv_file").val() != "") {
+            $("#upload_load").show();
+        };
+    });
+</script>
+{% if scroll %}
+<script>
+document.getElementById('{{ scroll }}').scrollIntoView();
+</script>
+{% endif %}
+{% endblock %}

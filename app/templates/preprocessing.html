@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+var sliderPercentages = {"A":{}, "T":{}, "G":{}, "C":{}};
+sliderPercentages["A"]["min"] = parseInt("{{stats['min_A_perc']}}");
+sliderPercentages["A"]["valueMin"] = parseInt("{{stats2['min_A_perc']}}");
+sliderPercentages["A"]["max"] = parseInt("{{stats['max_A_perc']}}");
+sliderPercentages["A"]["valueMax"] = parseInt("{{stats2['max_A_perc']}}");
+
+sliderPercentages["T"]["min"] = parseInt("{{stats['min_T_perc']}}");
+sliderPercentages["T"]["valueMin"] = parseInt("{{stats2['min_T_perc']}}");
+sliderPercentages["T"]["max"] = parseInt("{{stats['max_T_perc']}}");
+sliderPercentages["T"]["valueMax"] = parseInt("{{stats2['max_T_perc']}}");
+
+sliderPercentages["G"]["min"] = parseInt("{{stats['min_G_perc']}}");
+sliderPercentages["G"]["valueMin"] = parseInt("{{stats2['min_G_perc']}}");
+sliderPercentages["G"]["max"] = parseInt("{{stats['max_G_perc']}}");
+sliderPercentages["G"]["valueMax"] = parseInt("{{stats2['max_G_perc']}}");
+
+sliderPercentages["C"]["min"] = parseInt("{{stats['min_C_perc']}}");
+sliderPercentages["C"]["valueMin"] = parseInt("{{stats2['min_C_perc']}}");
+sliderPercentages["C"]["max"] = parseInt("{{stats['max_C_perc']}}");
+sliderPercentages["C"]["valueMax"] = parseInt("{{stats2['max_C_perc']}}");
+
+var sliderMaxForwardReadRange = parseInt("{{stats2['max_fw_length']}}");
+var sliderMaxReverseReadRange = parseInt("{{stats2['max_rv_length']}}");
+var sliderMinSequenceLengthRange = parseInt("{{stats2['min_length']}}");
+var sliderMaxSequenceLengthRange = parseInt("{{stats2['max_length']}}");
+var sliderQualityForwardCutoff = parseInt("{{stats2['fw_Q_cutoff'] if stats2['fw_Q_cutoff'] is defined else 1}}");
+var sliderQualityReverseCutoff = parseInt("{{stats2['rv_Q_cutoff'] if stats2['rv_Q_cutoff'] is defined else 1}}");
+var sliderQualityForwardMaxQuality = parseInt("{{stats2['fw_max_quality']}}");
+var sliderQualityReverseMaxQuality = parseInt("{{stats2['rv_max_quality']}}");
+
+var minRangefw = parseInt("{{stats2['minRangefw'] if stats2['minRangefw'] is defined else 1}}");
+var maxRangefw = parseInt("{{stats2['maxRangefw'] if stats2['maxRangefw'] is defined else stats2['max_fw_length']}}");
+var minRangerv = parseInt("{{stats2['minRangerv'] if stats2['minRangerv'] is defined else 1}}");
+var maxRangerv = parseInt("{{stats2['maxRangerv'] if stats2['maxRangerv'] is defined else stats2['max_rv_length']}}");
+</script>
+
+<script src="{{ url_for('static', filename='scripts/Visualize_Forward_Reverse_Compare.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/visualizeSequenceLength.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/visualizePairedReads.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/visualizeNucleotidePercentage.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/visualizeNucleotidePerPosition.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/custom.js') }}"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+{% endblock %}
+
+{% block app_content %}
+
+	<h2>Preprocessing</h2>
+
+	<p>
+		This page shows the stats about the FASTQ reads and gives options to filter the data.
+		Check out the tooltips (question marks) for more information about each box.
+	</p>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Current statistics</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="This block shows the current statistics of the uploaded data." aria-hidden="true"></i>
+		</div>
+
+		<div class="col-sm-9">
+			<table id="statistics">
+				<tr>
+					<th>Number of forward reads:</th>
+					<td id="fwReadsLabel"></td>
+					<th>Average quality forward:</th>
+					<td id="avgQualityLabelFw"></td>
+				</tr>
+				<tr>
+					<th>Number of reverse reads:</th>
+					<td id="rvReadsLabel"></td>
+					<th>Average quality reverse:</th>
+					<td id="avgQualityLabelRv"></td>
+				</tr>
+				<tr>
+					<th>Average length forward:</th>
+					<td id="avgLengthLabelFw"></td>
+					<th>Number of unflagged pairs:</th>
+					<td id="unflaggedReadsLabel"></td>
+				</tr>
+				<tr>
+					<th>Average length reverse:</th>
+					<td id="avgLengthLabelRv"></td>
+					<th></th>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Sequence and quality trimming</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="This plot will display nucleotide percentage and the range of quality per position. Click on the green button to switch between reverse and forward reads. This also allows you to change the options of the chosen reads." aria-hidden="true"></i>
+			<br>
+			<br>
+			<p>
+				<label for="amountForwardReadRange" title ="Choose a selection of the read to continue working with.">Forward read range:</label>
+				<input type="text" id="amountForwardReadRange" readonly style="border:0">
+			</p>
+			<div id="slider-forwardReadRange"></div>
+			<br>
+			<p>
+				<label for="amountQualityForward">Minimal average quality per forward read:</label>
+				<input type="text" id="amountQualityForward" readonly style="border:0">
+			</p>
+			<div id="slider-forwardQuality"></div>
+			<br>
+
+			<p>
+				<label for="amountReverseReadRange" title ="Choose a selection of the read to continue working with.">Reverse read range:</label>
+				<input type="text" id="amountReverseReadRange" readonly style="border:0">
+			</p>
+			<div id="slider-reverseReadRange"></div>
+			<br>
+			<p>
+				<label for="amountQualityReverse">Minimal average quality per reverse read:</label>
+				<input type="text" id="amountQualityReverse" readonly style="border:0">
+			</p>
+			<div id="slider-reverseQuality"></div>
+			<br>
+
+			<input type="checkbox" id="toggle-forwardRead" checked data-toggle="toggle" data-on="Forward" data-off="Reverse" data-onstyle="success" data-offstyle="danger">
+
+			<img id="load_trimming" src="{{ url_for('static', filename='images/loading2.gif') }}" alt="Loading..."
+			style="width:100px;height:auto;border:0">
+		</div>
+
+		<div class="col-sm-9">
+			<button class="action_button" onclick="make_sequence_image()">Make sequence image</button><br>
+			<div id="sequenceImageWarning" style="display:none">
+				<p style="color:red;font-weight:bold">These graphs are out of date. Click the button to regenerate them.</p>
+			</div>
+			<p id="sequence_trim_error" class="image_error"></p>
+			<div id="sequenceTrimImage"></div>
+			<div id="sequenceQualityImage"></div>
+		</div>
+	</div>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Paired reads</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="This plot will display the percentage of reads that had the same header present in both files." aria-hidden="true"></i>
+			<br>
+
+			<input type="checkbox" id="checkPaired" checked onchange="make_paired_image()">
+			Filter unpaired reads?
+			<i class="far fa-question-circle tooltip-icon" title="When the checkmark is checked the application will remove reads that are only present in the forward or reverse read files." aria-hidden="true"></i>
+		</div>
+
+		<div class="col-sm-9">
+			<p id="paired_error" class="image_error"></p>
+			<div id="pairsImage"></div>
+		</div>
+	</div>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Nucleotide ratio</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="This plot will display the percentage of nucleotides within the reads. Whiskers are calculated without outliers. Quarter total counts do contain outliers." aria-hidden="true"></i>
+			<br>
+			<br><br>
+			<p>
+				<label for="amountA">A percentage range:</label>
+				<input type="text" id="amountA" readonly style="border:0">
+			</p>
+			<div id="slider-rangeA"></div>
+
+			<p>
+				<label for="amountT">T percentage range:</label>
+				<input type="text" id="amountT" readonly style="border:0">
+			</p>
+			<div id="slider-rangeT"></div>
+
+			<br>
+			<p>
+				<label for="amountG">G percentage range:</label>
+				<input type="text" id="amountG" readonly style="border:0">
+			</p>
+			<div id="slider-rangeG"></div>
+
+			<p>
+				<label for="amountC">C percentage range:</label>
+				<input type="text" id="amountC" readonly style="border:0">
+			</p>
+			<div id="slider-rangeC"></div>
+
+			<img id="load_ratios" src="{{ url_for('static', filename='images/loading2.gif') }}" alt="Loading..."
+			style="width:100px;height:auto;border:0">
+		</div>
+
+		<div class="col-sm-9">
+			<button class="action_button" onclick="make_nucleotide_image()">Make nucleotide ratio image</button><br>
+			<div class="popup" onclick="boxplothelp()">
+				<button id="boxplotbutton"><i class="fas fa-info"></i> Box plot Usage</button>
+				<div class="popuptext" id="myPopup">
+					The box plot whiskers are calculated without the outliers.<br>
+					Hover over each box plot for more information.<br>
+					The first values show the exact percentages of the box plot edges.<br>
+					The Total Counts show the total number of reads in each quarter of the data.<br>
+					The Total Counts also include outliers.<br>
+					Click on 'outliers' in the legend to hide the outliers and refit the graph.<br>
+					<div id="boxplotarrow">
+					</div>
+				</div>
+			</div>
+			<p id="nucleotide_error" class="image_error"></p>
+			<div id="fwNucleotideImage"></div>
+			<div id="rvcNucleotideImage"></div>
+		</div>
+	</div>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Sequence length</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="This plot will display the histogram of the read lengths. The range can be adjusted at the parameter section." aria-hidden="true"></i>
+			<br>
+
+			<p>
+				<label for="amountSequenceLengthRange">Sequence length range:</label>
+				<input type="text" id="amountSequenceLengthRange" readonly style="border:0">
+			</p>
+			<div id="slider-sequenceLengthRange"></div>
+		</div>
+
+		<div class="col-sm-9">
+			{% if stats2["min_length"] == stats2["max_length"] %}
+				<p style="color:red;font-weight:bold">The minimum sequence length and the maximum sequence length are the same, so this function has been disabled.</p>
+			{% else %}
+				<button id="make_seq_image_button" class="action_button" onclick="make_seq_image()">Make sequence image</button>
+				<p id="sequence_error" class="image_error"></p>
+				<div id="sequenceImage"></div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Identity reads</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="This plot will display the histogram of the percentage identity between the forward and reverse reads. On the background it uses the Smith-Waterman algoritm and the scores are used in this. The minimum identity can be adjusted at the parameter section." aria-hidden="true"></i>
+			<br>
+			<b>Score options:</b><br>
+			Match:
+			<input type="range" id="paired_read_match" min="1" max="5" value="1" step="1">
+			<span>Value:</span> <span id="paired_read_match_value">1</span>
+			<br><br>
+
+			Mismatch:
+			<input type="range" id="paired_read_mismatch" min="-5" max="0" value="0" step="1">
+			<span>Value:</span> <span id="paired_read_mismatch_value">0</span>
+			<br><br>
+
+			Opening gap:
+			<input type="range" id="paired_read_opening_gap" min="-5" max="0" value="-2" step="1" >
+			<span>Value:</span> <span id="paired_read_opening_gap_value">-2</span>
+			<br><br>
+
+			Extend gap:
+			<input type="range" id="paired_read_extend_gap" min="-5" max="0" value="-1" step="1" >
+			<span>Value:</span> <span id="paired_read_extend_gap_value">-1</span>
+			<br><br><br>
+
+			<b>Filter results options:</b><br>
+			Minimum identity percentage paired reads:
+			<input type="range" id="paired_read_minimum_percentage" min="0" max="100" value="0" step="1">
+			<span>Value:</span> <span id="paired_read_minimum_percentage_value">0</span>
+		</div>
+
+		<div class="col-sm-9">
+			<button class="action_button" id="calc_iden" onclick="make_identity_image()">Calculate identity</button>
+			<img id="load_identity" src="{{ url_for('static', filename='images/loading2.gif') }}" alt="Loading..." style="width:50px;height:auto;border:0">
+			<p id="identity_succes" class="image_succes"></p>
+			<p id="identity_error" class="image_error"></p>
+			<div id="identityReadsWarning" style="display:none">
+				<p style="color:red;font-weight:bold">These graphs are out of date. Click the button to regenerate them.</p>
+			</div>
+			<div id="identityImage"></div>
+		</div>
+	</div>
+
+	<div class="row preprocessingBlock">
+		<div class="col-sm-3">
+			<h4 class="before-tooltip"><b>Export data</b></h4>
+			<i class="far fa-question-circle tooltip-icon" title="Export the preprocessed data as a TSV file for use in future sessions." aria-hidden="true"></i>
+			<br><br><button id="download_tsv" onclick="download_tsv()">Save session</button>
+			<br>
+			<p id="download_tsv_error" class="image_error"></p>
+		</div>
+
+		<div class="col-sm-9">
+			<br><br>
+			<div class="tsv-alert">
+				<span class="tsv-closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+				<strong>INFO!</strong> Don't open this file with MS Excel directly! Instead follow the following steps:
+				<ol>
+					<li>Open a new Excel sheet, select the Data tab, then click 'From Text' in the Get External Data group.</li>
+					<li>Browse to the CSV file and select 'Import'.</li>
+					<li>In step 1 of the Import Wizard choose 'Delimited' as the original data type. Click 'Next'.</li>
+					<li>In step 2 of the Import Wizard choose Comma as the delimiter (deselect the Tab check box) and click 'Next'.</li>
+					<li>In step 3 of the Import Wizard, you tell Excel not to change your formats. With the first column in the Data Preview selected, scroll across to the last column and select it while holding the SHIFT key (all columns should now be selected). Then select 'Text' as the Column Data Format and click 'Finish'. </li>
+					<li>Click OK to insert the data into cell A1</li>
+				</ol>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script>
+		function boxplothelp() {
+			var popup = document.getElementById("myPopup");
+			popup.classList.toggle("show");
+		}
+		$("#load_trimming").hide();
+		$("#load_ratios").hide();
+		$("#load_identity").hide();
+		$("#calc_iden").click(function () {
+			$("#load_identity").show();
+		});
+
+		$(function() {
+			$("#toggle-forwardRead").change(function() {
+				var forward_read = $("#toggle-forwardRead").prop("checked");
+
+				$("#slider-forwardReadRange").slider({ disabled: !forward_read });
+				$("#slider-forwardQuality").slider({ disabled: !forward_read });
+
+				$("#slider-reverseReadRange").slider({ disabled: forward_read });
+				$("#slider-reverseQuality").slider({ disabled: forward_read });
+
+
+				$("#sequenceImageWarning").css("display", "block");
+			})
+
+			$("#slider-reverseReadRange").slider({ disabled: true });
+			$("#slider-reverseQuality").slider({ disabled: true });
+
+			document.querySelectorAll("input[type=range]").forEach(inputRange => {
+				inputRange.oninput = function() {
+					document.getElementById(inputRange.id + "_value").innerHTML = inputRange.value;
+					$("#sequenceImageWarning").css("display", "block");
+					$("#identityReadsWarning").css("display", "block");
+				}
+			});
+
+			update_stats();
+		})
+	</script>
+	<button onclick="redirectPage(this)" data-url="{{ url_for('web.blastPage')}}" class="nav-button">Go to BLAST</button>
+	<div id="warningBLAST">
+		{% if gotBlast == true %}
+			 <p style="color:red">Warning! BLAST results were found in the current session.<br>These results will be removed when BLAST is used again.</p>
+		{% endif %}
+	</div>
+{% endblock %}

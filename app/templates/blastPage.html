@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Sequences.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
+<script src="{{ url_for('static', filename='scripts/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/customcontainr.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/overlay.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/sequences.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/bacterial.js') }}"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+{% endblock %}
+
+{% block app_content %}
+<h2>ConTaInR</h2>
+<div>
+    <p>
+        On this page you can BLAST your preprocessed FastQ files.<br>
+        BLAST is executed against an inhouse 16S reference dataset.
+    </p>
+</div>
+<hr>
+
+<div id="BLAST">
+    <div class="col-sm-3">
+        <h4 class="before-tooltip"><b>BLAST</b></h4>
+        <i class="far fa-question-circle tooltip-icon" title="Click the checkbox to adjust the BLAST options to your liking. The reward/penalty values are ordered from most to leaststringent, with the more stringent values better suited for alignments with high sequence identity. Using these options will make BLAST slower." aria-hidden="true"></i>
+    </div>
+    <br><br>
+    <p>
+        <input type="checkbox" id="useOptionsCB" onclick="toggle_advanced_blast_options()"> Check to show and use custom blast parameters.
+    </p>
+    <div id="blastAdvanced" style="height:0px;visibility:collapse">
+        <p>
+            <label for="amountIdentityCutoff">Identity percent cutoff:</label>
+            <input type="text" id="amountIdentityCutoff" readonly style="border:0">
+        </p>
+        <div id="slider-minimalIdentity"></div>
+        Blast: reward/penalty:
+        <select id="reward_penalty">
+            <option value="1-5">1/-5</option>
+            <option value="1-4">1/-4</option>
+            <option value="2-7">2/-7</option>
+            <option value="1-3">1/-3</option>
+            <option value="2-5">2/-5</option>
+            <option value="1-2">1/-2</option>
+            <option value="2-3" selected>2/-3</option>
+            <option value="3-4">3/-4</option>
+            <option value="4-5">4/-5</option>
+            <option value="1-1">1/-1</option>
+            <option value="3-2">3/-2</option>
+            <option value="5-4">5/-4</option>
+        </select>
+        <br>
+        Blast: gap costs open/extend:
+        <select id="gap_costs">
+            <option value="4-4">4/4</option>
+            <option value="2-4">2/4</option>
+            <option value="0-4">0/4</option>
+            <option value="3-3">3/3</option>
+            <option value="6-2">6/2</option>
+            <option value="5-2" selected>5/2</option>
+            <option value="4-2">4/2</option>
+            <option value="2-2">2/2</option>
+        </select>
+    </div>
+    <br><br>
+    The progress bar below shows an <b>estimation</b> of the BLAST process progress.<br>
+    If you filtered reads during preprocessing this process might take less time.<br>
+    <div id="blastProgressBar">
+        <div class="blastBar"></div>
+    </div>
+    <br><br>
+    Click the button below if you want to perform BLAST: <br>
+    <button id="BLAST_button" onclick="do_BLAST()">Do BLAST</button>
+    <p id="BLAST_error" class="image_error"></p>
+    <p id="BLAST_succes" class="blast_success"></p>
+    <img id="blast_load" src="{{ url_for('static', filename='images/loading2.gif') }}" alt="Loading..."
+        style="display:none;width:100px;height:auto;border:0">
+    <hr>
+</div>
+<br><button id="download_tsv" onclick="download_tsv()">Save session</button>
+<br>
+<p id="download_tsv_error" class="image_error"></p>
+
+<button onclick="redirectPage(this)" data-url="{{ url_for('web.preprocessing')}}" class="nav-button nav-button-back">Go back to preprocessing</button>
+{% if haveResults == "True"%}
+    <button id="resultsPage" onclick="redirectPage(this)" data-url="{{ url_for('web.results')}}" class="nav-button">Go to results</button>
+{% else %}
+    <button id="resultsPage" onclick="redirectPage(this)" data-url="{{ url_for('web.results')}}" class="nav-button" style="display:none">Go to results</button>
+{% endif %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $(function() {
+        var gap_costs = {
+            "1-5": [[3, 3]],
+            "1-4": [[1, 2], [0, 2], [2, 1], [1, 1]],
+            "2-7": [[2, 4], [0, 4], [4, 2], [2, 2]],
+            "1-3": [[2, 2], [1, 2], [0, 2], [2, 1], [1, 1]],
+            "2-5": [[2, 4], [0, 4], [4, 2], [2, 2]],
+            "1-2": [[2, 2], [1, 2], [0, 2], [3, 1], [2, 1], [1, 1]],
+            "2-3": [[4, 4], [2, 4], [0, 4], [3, 3], [6, 2], [5, 2], [4, 2], [2, 2]],
+            "3-4": [[6, 3], [5, 3], [4, 3], [6, 2], [5, 2], [4, 2]],
+            "4-5": [[6, 5], [5, 5], [4, 5], [3, 5]],
+            "1-1": [[3, 2], [2, 2], [1, 2], [0, 2], [4, 1], [3, 1], [2, 1]],
+            "3-2": [[5, 5]],
+            "5-4": [[10, 6], [8, 6]]
+        };
+
+        $("#reward_penalty").change(function(){
+            var gap_costs_select = $("#gap_costs");
+            gap_costs_select.empty();
+            gap_costs[this.value].forEach(element => gap_costs_select.append($("<option></option>").attr("value", element[0] + "-" + element[1]).text(element[0] + "/" + element[1])));
+        });
+    });
+</script>
+{% endblock %}

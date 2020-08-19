@@ -1,0 +1,7 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "${SERVER_PORT}:5000"
+    env_file: .env

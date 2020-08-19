@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <img src="{{ url_for('static', filename='images/bacteria2.png') }}" alt="">
+    <h2>About this project</h2>
+    <p>
+        <b>Metagenomics</b> studies genetic material obtained from environmental samples to identify the (micro-)organisms present in specific environments.
+        Knowledge of this composition can be used in various industrial applications, such as improving compost or determining soil health.<br><br>
+
+        The <b>goal of this project</b> is to develop a tool for analysis and visualization of metagenomics data. By developing a user-friendly tool,
+        data analysis can be performed more efficiently to provide new insights about environmental samples.<br><br>
+
+        This project is part of the bioinformatics <b>minor course Data Science</b> at HAN University of Applied Sciences (Nijmegen, the Netherlands). Students work on projects provided by the HAN BioCentre,
+        applying (bio-)informatics methods for biological research.
+    </p>
+    <hr>
+    <h2>About HAN BioCentre</h2>
+    <p>
+        HAN BioCentre carries out applied research within the theme of <b>biodiscovery</b> in collaboration with business partners and other research institutes.
+        The resulting knowledge contributes to the <b>biobased economy</b>.<br>
+
+        More information at the <a href="https://specials.han.nl/sites/biocentre-en/">HAN BioCentre website</a>.
+    </p>
+    <hr>
+    <h2>About us</h2>
+    <div>
+        Our team consists of the following members:<br>
+
+        <h3>2018/2019:</h3>
+
+        <ul>
+            <li>Sjors Bongers (4th year bioinformatics student)</li>
+            <li>Hidde Dijkstra (3rd year life sciences student)</li>
+            <li>Daan Gilissen (4th year bioinformatics student)</li>
+            <li>Pim Hoefmans (3rd year bioinformatics student)</li>
+            <li>Koen Rademaker (4th year bioinformatics student)</li>
+            <li>Thijs Schoppema (3rd year bioinformatics student)</li>
+        </ul>
+
+        <h3>2019/2020:</h3>
+
+        <ul>
+            <li>Jordan Dekker (3rd year bioinformatics student)</li>
+            <li>Alex Janse (4th year bioinformatics student)</li>
+            <li>Rogier Stegeman (4th year bioinformatics student)</li>
+            <li>Robin van der Vliet (3rd year software development student)</li>
+        </ul>
+    </div>
+{% endblock %}

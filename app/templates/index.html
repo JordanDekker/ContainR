@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <img src="{{ url_for('static', filename='images/bacteria.png') }}" alt="">
+
+    <h2>Welcome to ConTaInR v1.0!</h2>
+    <hr>
+    <div>
+        ConTaInR is a web-based tool for analysis of metagenomic data. It contains four main functionalities:
+        <ol>
+            <li>The first one helps you to filter and preprocess your FastQ files.</li>
+            <li>The second one is to BLAST (uses BLAST+) that reads against an inhouse reference database.</li>
+            <li>The third one visualizes the BLAST results in a sunburst and graphs and gives the option to extract the desired results.</li>
+            <li>The last one uses BLAST to annotate the sequences based on taxonomy. Several attributes can influence the quality of reads in metagenomic datasets.</li>
+        </ol>
+ 
+        To use these functionalities, ConTaInR uses <a href="https://en.wikipedia.org/wiki/FASTQ_format" target="_blank">FASTQ files</a> as input. There are two forms of output:
+        <ul>
+            <li>A TSV file which contains the session information. In this file is shown which steps ConTaInR has taken and which filters it has applied. (<b>Warning:</b> please read the information on the bottom of the preprocess page before opening the file in Excel.)</li>
+            <li>A FASTA file with the sequences bound by the selection in the sunburst.</li>
+        </ul>
+        <br>
+    </div>
+    <hr>
+    <div>
+        <h4>Get started here:</h4>
+        <button onclick="redirectPage(this)" data-url="/indexNewSession" type="button">Start new session</button>
+        <button onclick="redirectPage(this)" data-url="/indexLoadSession" type="button">Load old session</button>
+    </div>
+{% endblock %}
